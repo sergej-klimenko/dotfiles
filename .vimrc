@@ -139,11 +139,9 @@ endfor
   set noshelltemp                                     " use pipes
   set backspace=indent,eol,start                      " allow backspacing everything in insert mode
   set breakindent                                     " this is just awesome (best patch in a long time)
-  set autoindent                                      " automatically indent to match adjacent lines
   set expandtab                                       " spaces instead of tabs
-  "set smartindent                                    " smart indenting when starting a new line
   set smarttab                                        " use shiftwidth to enter tabs
-  "let &tabstop=s:settings.default_indent             " number of spaces per tab for display
+
   let &softtabstop=s:settings.default_indent          " number of spaces per tab in insert mode
   let &shiftwidth=s:settings.default_indent           " number of spaces when indenting
   set nolist                                          " highlight whitespace
@@ -171,10 +169,10 @@ endfor
   set t_vb=
 
   " searching
-  set hlsearch                                        "highlight searches
-  set incsearch                                       "incremental searching
-  set ignorecase                                      "ignore case for searching
-  set smartcase                                       "do case-sensitive if there's a capital letter
+  set hlsearch                                        " highlight searches
+  set incsearch                                       " incremental searching
+  set ignorecase                                      " ignore case for searching
+  set smartcase                                       " do case-sensitive if there's a capital letter
 
 "}}}
 
@@ -182,7 +180,7 @@ endfor
   set showmatch                                       "automatically highlight matching braces/brackets/etc.
   set matchtime=2                                     "tens of a second to show matching parentheses
   set number
-  "set lazyredraw
+
   set laststatus=2                                    "last window always has a status line
   set noshowmode                                      "useful if using vim-airline as to avoid duplicating
   set foldenable                                      "enable folds by default
@@ -209,17 +207,19 @@ endfor
   endif
 
   if has('gui_running')
-    "set lines=999 columns=9999  "open maximized
-    set guioptions-=m                    "remove menu bar
-    set guioptions-=T                     "remove toolbar
-    set guioptions-=r                      "remove right-hand scroll bar
-    set guioptions-=L                      "remove left-hand scroll bar
-  endif
+    " open maximized
+    set lines=999 columns=9999
 
-  if s:is_windows
+    set guioptions-=m  "remove menu bar
+    set guioptions-=T  "remove toolbar
+    set guioptions-=r  "remove right-hand scroll bar
+    set guioptions-=L  "remove left-hand scroll bar
+
+    if s:is_windows
+      "set gfn=Meslo_LG_M_DZ_for_Powerline:h9:cRUSSIAN
        set gfn=Meslo_LG_L_DZ_for_Powerline_PNF:h9:cRUSSIAN
        set transparency=2
-  endif
+    endif
 
   if has('gui_gtk')
       set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ Plus\ Nerd\ File\ Types\ Mono\ Plus\ Pomicons\ 12
@@ -439,6 +439,11 @@ endif
     "}}}
 
     " ZeaVim {{{
+    "
+    " }}}
+
+    " Vim-erlang {{{
+    " let g:erlang_folding = 1
     " }}}
 "}}}
 
@@ -521,9 +526,9 @@ endif
     vnoremap <S-Tab> <gv
 
     " Quickly edit/reload the vimrc file
-    nnoremap <silent> <leader>ev  :e $VIMRUNTIME\vimrc<CR>
-    nnoremap <silent> <leader>esv :vsplit<CR><C-w><C-w>:e $VIMRUNTIME\vimrc<CR>
-    nnoremap <silent> <leader>sv  :so $VIMRUNTIME\vimrc<CR>:nohl<CR>
+    nnoremap <silent> <leader>ev  :e $VIM\vimrc<CR>
+    nnoremap <silent> <leader>esv :vsplit<CR><C-w><C-w>:e $VIM\vimrc<CR>
+    nnoremap <silent> <leader>sv  :so $VIM\vimrc<CR>:nohl<CR>
 
     " Map : to ; (then remap ;) -- massive pinky-saver
     noremap ; :
@@ -604,11 +609,15 @@ endif
   if count(s:settings.plugin_groups, 'indents') "{{{
     Plug 'Yggdroot/indentLine' "{{{
       let g:indentLine_char='┆'
+      let g:indentLine_bufNameExclude = ['_.*', 'NERD_tree*']
     "}}}
+    Plug 'arecarn/fold-cycle.vim'
+    Plug 'tpope/vim-sleuth'
   endif "}}}
 
   " Erlang
   if count(s:settings.plugin_groups, 'erlang') "{{{
+    Plug 'vim-erlang/vim-erlang-runtime'
     Plug 'vim-erlang/vim-erlang-omnicomplete'
     Plug 'calebsmith/vim-lambdify'
   endif "}}}
@@ -655,6 +664,11 @@ endif
 
         au BufEnter *.pkb.sql setf plsql
         au BufEnter *.pks.sql setf plsql
+        au BufEnter *.pkb     setf plsql
+        au BufEnter *.pks     setf plsql
+        au BufEnter *.tps.sql setf plsql
+        au BufEnter *.tpb.sql setf plsql        
+        au BufEnter *.typ.sql setf plsql        
 
         autocmd FileType java set omnifunc=javacomplete#Complete
 
@@ -663,6 +677,16 @@ endif
 
         au FileType xml setlocal equalprg=xmllint\ --format\ --recover\ -
         au BufEnter * call <SID>AutoProjectRootCD()
+
+        au BufEnter *.pk* :IndentLinesReset
+
+        au BufEnter *.pkb.sql :IndentLinesReset
+        au BufEnter *.pks.sql :IndentLinesReset
+        au BufEnter *.pkb     :IndentLinesReset
+        au BufEnter *.pks     :IndentLinesReset
+        au BufEnter *.tps.sql :IndentLinesReset
+        au BufEnter *.tpb.sql :IndentLinesReset        
+        au BufEnter *.typ.sql :IndentLinesReset 
 
         "Jump to last cursor position when opening a file
         autocmd BufReadPost * call s:SetCursorPosition()
