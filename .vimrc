@@ -5,10 +5,12 @@ source $VIMRUNTIME/mswin.vim
 " Global variables {{{
 set nocompatible
 
+let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+
 let mapleader = "\<Space>"
 let s:is_windows = has('win32') || has('win64')
 let s:is_cygwin = has('win32unix')
-let s:is_macvim = has('gui_macvim')
+let s:is_nvim = has('nvim')
 let s:cache_dir = '~/.vim/.cache'
 "}}}
 
@@ -207,31 +209,35 @@ endfor
   endif
 
   if has('gui_running')
-    " open maximized
-    set lines=999 columns=9999
+    "set lines=999 columns=9999  "open maximized
+    set guioptions-=m                    "remove menu bar
+    set guioptions-=T                     "remove toolbar
+    set guioptions-=r                      "remove right-hand scroll bar
+    set guioptions-=L                      "remove left-hand scroll bar
+  endif
 
-    set guioptions-=m  "remove menu bar
-    set guioptions-=T  "remove toolbar
-    set guioptions-=r  "remove right-hand scroll bar
-    set guioptions-=L  "remove left-hand scroll bar
-
-    if s:is_windows
-      "set gfn=Meslo_LG_M_DZ_for_Powerline:h9:cRUSSIAN
+  if s:is_windows
        set gfn=Meslo_LG_L_DZ_for_Powerline_PNF:h9:cRUSSIAN
        set transparency=2
-    endif
+  endif
 
-    if has('gui_gtk')
-      set gfn=Ubuntu\ Mono\ 11
-    endif
+  if has('gui_gtk')
+      set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ Plus\ Nerd\ File\ Types\ Mono\ Plus\ Pomicons\ 12
+  endif
+
+  if s:is_nvim
+      set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ Plus\ Nerd\ File\ Types\ Mono\ Plus\ Pomicons\ 12
+      set t_Co=256
   endif
 "}}}
 
 " Отображение кириллицы {{{
-lan mes ru_RU.UTF-8
-source $VIMRUNTIME/delmenu.vim
-set langmenu=ru_RU.UTF-8
-source $VIMRUNTIME/menu.vim
+if s:is_windows
+    lan mes ru_RU.UTF-8
+    source $VIMRUNTIME/delmenu.vim
+    set langmenu=ru_RU.UTF-8
+    source $VIMRUNTIME/menu.vim
+endif
 "}}}
 
 " Plugin configuration {{{
@@ -316,6 +322,13 @@ source $VIMRUNTIME/menu.vim
         endif
         let g:neocomplete#force_omni_input_patterns.erlang='\<[[:digit:][:alnum:]_-]\+:[[:digit:][:alnum:]_-]*'
     "}}}
+
+    " Deoplete {{{
+        let g:deoplete#enable_at_startup=1
+        let g:deoplete#disable_auto_complete=0
+        let g:deoplete#omni_patterns = {}
+        let g:deoplete#omni_patterns.erlang='\<[[:digit:][:alnum:]_-]\+:[[:digit:][:alnum:]_-]*'
+    " }}}
 
     " VimShell {{{
       let g:vimshell_editor_command='vim'
@@ -540,11 +553,17 @@ source $VIMRUNTIME/menu.vim
 
 " Plugins {{{
 
-  call plug#begin($VIM . '/plugins')
+  if s:is_windows
+      call plug#begin($VIM . '/plugins')
+  else
+      call plug#begin( '~/.vim/plugins')
+  endif
 
   " Core
   if count(s:settings.plugin_groups, 'core') "{{{
-    Plug $VIM . '/plugins/vimproc'
+    if !s:is_nvim
+        Plug $VIM . '/plugins/vimproc'
+    endif
     Plug 'bling/vim-airline' 
     Plug 'tpope/vim-dispatch'
     Plug 'tpope/vim-obsession'
@@ -562,10 +581,15 @@ source $VIMRUNTIME/menu.vim
 
   " Autocomplete
   if count(s:settings.plugin_groups, 'autocomplete') "{{{
+    if s:is_nvim
+        Plug 'Shougo/deoplete.nvim' 
+    endif
+    if !s:is_nvim
+        Plug 'Shougo/neocomplete.vim'
+    endif
     Plug 'ervandew/supertab'
     Plug 'honza/vim-snippets'
     Plug 'SirVer/ultisnips'
-    Plug 'Shougo/neocomplete.vim'
     Plug 'scrooloose/syntastic'
   endif "}}}
 
@@ -591,17 +615,21 @@ source $VIMRUNTIME/menu.vim
 
   " Sql
   if count(s:settings.plugin_groups, 'sql') "{{{
-    Plug 'talek/vorax4'
+    if !s:is_nvim
+        Plug 'talek/vorax4'
+    endif
     Plug 'vim-scripts/dbext.vim'
   endif "}}}
 
   " Misc
   if count(s:settings.plugin_groups, 'misc') "{{{
-    Plug 'Shougo/vimshell.vim',  { 'on': ['VimShell', 'VimShellPop', 'VimShellInteractive'] }
+    if !s:is_nvim
+        Plug 'Shougo/vimshell.vim',  { 'on': ['VimShell', 'VimShellPop', 'VimShellInteractive'] }
+        Plug 'lyokha/vim-xkbswitch'
+        Plug 'tomtom/shymenu_vim'
+    endif
     Plug 'zhaocai/GoldenView.Vim', { 'on': '<Plug>GoldenViewSplit' }
     Plug 'KabbAmine/zeavim.vim'
-    Plug 'tomtom/shymenu_vim'
-    Plug 'lyokha/vim-xkbswitch'
     Plug 'mhinz/vim-sayonara'
     Plug 'dbakker/vim-projectroot'
   endif "}}}
