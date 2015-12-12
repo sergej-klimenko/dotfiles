@@ -18,8 +18,10 @@ let s:cache_dir = '~/.vim/.cache'
 let g:sql_type_default = 'plsql'
 
 let s:settings = {}
-let s:settings.colorscheme = 'hybrid_reverse'
-let s:settings.airline = 'hybridalt'
+"let s:settings.colorscheme = 'hybrid_reverse'
+let s:settings.colorscheme = 'gruvbox'
+"let s:settings.airline = 'hybridalt'
+let s:settings.airline = 'gruvbox'
 let s:settings.default_indent = 4
 let s:settings.max_column = 120
 let s:settings.enable_cursorcolumn = 0
@@ -140,7 +142,7 @@ endfor
   set backspace=indent,eol,start                      " allow backspacing everything in insert mode
   set breakindent                                     " this is just awesome (best patch in a long time)
   set expandtab                                       " spaces instead of tabs
-  set smarttab                                        " use shiftwidth to enter tabs
+  "set smarttab                                        " use shiftwidth to enter tabs
 
   let &softtabstop=s:settings.default_indent          " number of spaces per tab in insert mode
   let &shiftwidth=s:settings.default_indent           " number of spaces when indenting
@@ -216,10 +218,10 @@ endfor
     set guioptions-=L  "remove left-hand scroll bar
 
     if s:is_windows
-      "set gfn=Meslo_LG_M_DZ_for_Powerline:h9:cRUSSIAN
        set gfn=Meslo_LG_L_DZ_for_Powerline_PNF:h9:cRUSSIAN
        set transparency=2
     endif
+  endif
 
   if has('gui_gtk')
       set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ Plus\ Nerd\ File\ Types\ Mono\ Plus\ Pomicons\ 12
@@ -269,6 +271,17 @@ endif
         set grepformat=%f:%l:%c:%m,%f:%l:%m
       endif
     "}}}
+
+    " CtrlP {{{
+      let g:ctrlp_custom_ignore = {
+            \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+            \ 'file': '\v\.(exe|so|dll)$'
+            \ }
+      let g:ctrlp_extensions=['funky']
+      let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
+      let g:ctrlp_user_command = 'ag -l --nocolor -g "" %s'
+      let g:ctrlp_use_caching = 0
+    " }}}
 
     " NERDTree {{{
       au VimEnter * NERDTreeToggle | wincmd p
@@ -438,8 +451,14 @@ endif
       endfunction "}}}
     "}}}
 
+    " DeleteTrailingWhitespace {{{
+      let g:DeleteTrailingWhitespace = 1
+      let g:DeleteTrailingWhitespace_Action = 'delete'
+    " }}}
+
     " ZeaVim {{{
-    "
+     let g:zv_zeal_directory = 'zeal'
+    " let g:investigate_command_for_erlang = 'zeal --query ^s'
     " }}}
 
     " Vim-erlang {{{
@@ -459,6 +478,16 @@ endif
     nmap <leader>7 <Plug>AirlineSelectTab7
     nmap <leader>8 <Plug>AirlineSelectTab8
     nmap <leader>9 <Plug>AirlineSelectTab9
+
+    " CtrlP
+    nmap \ [ctrlp]
+    nnoremap [ctrlp] <nop>
+    nnoremap [ctrlp]f :CtrlP<cr>
+    nnoremap [ctrlp]t :CtrlPBufTag<cr>
+    nnoremap [ctrlp]T :CtrlPTag<cr>
+    nnoremap [ctrlp]l :CtrlPLine<cr>
+    nnoremap [ctrlp]o :CtrlPFunky<cr>
+    nnoremap [ctrlp]b :CtrlPBuffer<cr>
 
     " NERDTree
     nnoremap <F2> :NERDTreeToggle<CR>
@@ -487,6 +516,10 @@ endif
     nnoremap <silent> <leader>gp :Git push<CR>
     nnoremap <silent> <leader>gw :Gwrite<CR>
     nnoremap <silent> <leader>gr :Gremove<CR>
+
+    " GitV
+    nnoremap <silent> <leader>gv :Gitv<CR>
+    nnoremap <silent> <leader>gV :Gitv!<CR>
 
     " Vorax
     nnoremap <silent> <F12> :VORAXConnectionsToggle<CR>
@@ -559,6 +592,18 @@ endif
 " Plugins {{{
 
   if s:is_windows
+    let s:plug_vim = $VIMRUNTIME . '\autoload\plug.vim'
+  else
+    let s:plug_vim = $HOME . '/.vim/autoload/plug.vim'
+  endif
+
+  if empty(glob(s:plug_vim))
+    silent execute "!curl -k -fLo " . s:plug_vim . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
+    "autocmd VimEnter * PlugInstall | source $MYVIMRC
+  endif
+
+  if s:is_windows
       call plug#begin($VIM . '/plugins')
   else
       call plug#begin( '~/.vim/plugins')
@@ -569,7 +614,7 @@ endif
     if !s:is_nvim
         Plug $VIM . '/plugins/vimproc'
     endif
-    Plug 'bling/vim-airline' 
+    Plug 'bling/vim-airline'
     Plug 'tpope/vim-dispatch'
     Plug 'tpope/vim-obsession'
     Plug 'dhruvasagar/vim-prosession'
@@ -582,12 +627,16 @@ endif
     Plug 'majutsushi/tagbar'
     Plug 'haya14busa/incsearch.vim'
     Plug 'dyng/ctrlsf.vim'
+    Plug 'tacahiroy/ctrlp-funky'
+    Plug 'FelikZ/ctrlp-py-matcher'
+    Plug 'ctrlpvim/ctrlp.vim'
+    Plug 'vim-scripts/a.vim'
   endif "}}}
 
   " Autocomplete
   if count(s:settings.plugin_groups, 'autocomplete') "{{{
     if s:is_nvim
-        Plug 'Shougo/deoplete.nvim' 
+        Plug 'Shougo/deoplete.nvim'
     endif
     if !s:is_nvim
         Plug 'Shougo/neocomplete.vim'
@@ -603,6 +652,7 @@ endif
    Plug 'tpope/vim-fugitive'
    Plug 'low-ghost/nerdtree-fugitive'
    Plug 'Xuyuanp/nerdtree-git-plugin'
+   Plug 'gregsexton/gitv'
   endif "}}}
 
   " Indents
@@ -613,6 +663,7 @@ endif
     "}}}
     Plug 'arecarn/fold-cycle.vim'
     Plug 'tpope/vim-sleuth'
+    Plug 'vim-scripts/DeleteTrailingWhitespace'
   endif "}}}
 
   " Erlang
@@ -641,6 +692,11 @@ endif
     Plug 'KabbAmine/zeavim.vim'
     Plug 'mhinz/vim-sayonara'
     Plug 'dbakker/vim-projectroot'
+    Plug 'KabbAmine/zeavim.vim'
+    if s:is_windows
+        Plug 'kkoenig/wimproved.vim'
+    endif
+    Plug 'chrisbra/csv.vim'
   endif "}}}
 
   " Color schemes {{{
@@ -652,6 +708,7 @@ endif
     Plug 'daviesjamie/airline-hybrid-alt'
     Plug 'kristijanhusak/vim-hybrid-material'
     Plug 'vim-erlang/vim-compot'
+    Plug 'morhetz/gruvbox'
   "}}}
 
 "}}}
@@ -662,13 +719,17 @@ endif
         " Clear!
         au!
 
+        autocmd GUIEnter * silent! WToggleClean
+
+        au! BufRead,BufNewFile *.csv,*.dat	setf csv
+
         au BufEnter *.pkb.sql setf plsql
         au BufEnter *.pks.sql setf plsql
         au BufEnter *.pkb     setf plsql
         au BufEnter *.pks     setf plsql
         au BufEnter *.tps.sql setf plsql
-        au BufEnter *.tpb.sql setf plsql        
-        au BufEnter *.typ.sql setf plsql        
+        au BufEnter *.tpb.sql setf plsql
+        au BufEnter *.typ.sql setf plsql
 
         autocmd FileType java set omnifunc=javacomplete#Complete
 
@@ -685,8 +746,8 @@ endif
         au BufEnter *.pkb     :IndentLinesReset
         au BufEnter *.pks     :IndentLinesReset
         au BufEnter *.tps.sql :IndentLinesReset
-        au BufEnter *.tpb.sql :IndentLinesReset        
-        au BufEnter *.typ.sql :IndentLinesReset 
+        au BufEnter *.tpb.sql :IndentLinesReset
+        au BufEnter *.typ.sql :IndentLinesReset
 
         "Jump to last cursor position when opening a file
         autocmd BufReadPost * call s:SetCursorPosition()
