@@ -104,7 +104,16 @@ endfor
             normal! zz
         endif
     end
-  endfunction"}}}
+  endfunction "}}}
+
+  function! ToggleErrors() "{{{
+      if empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") is# "quickfix"'))
+          " No location/quickfix list shown, open syntastic error location panel
+          Errors
+      else
+          lclose
+      endif
+  endfunction "}}}
 "}}}
 
 " Base configuration {{{
@@ -121,7 +130,7 @@ endfor
   if exists('$TMUX')
     set clipboard=
   else
-    set clipboard=unnamed                             "sync with OS clipboard
+    set clipboard=unnamedplus                         "sync with OS clipboard
   endif
   set hidden                                          "allow buffer switching without saving
   set autoread                                        "auto reload if file saved externally
@@ -360,14 +369,18 @@ endif
     "}}}
 
     " Syntastic {{{
+    "
       let g:syntastic_error_symbol = '✗'
       let g:syntastic_style_error_symbol = '✠'
       let g:syntastic_warning_symbol = '∆'
       let g:syntastic_style_warning_symbol = '≈'
       let g:syntastic_ignore_files = ['\m\c\.sql$']
-      let g:syntastic_always_populate_loc_list = 1
-      let g:syntastic_auto_loc_list = 1
+      let g:syntastic_always_populate_loc_list = 0
+      let g:syntastic_auto_loc_list = 0
       let g:syntastic_reuse_loc_lists = 1
+      let g:syntastic_check_on_open = 1
+      let g:syntastic_check_on_wq = 0
+      let g:syntastic_erlang_checkers=['syntaxerl']
     "}}}
 
     " Tagbar {{{
@@ -499,10 +512,7 @@ endif
     " VimShell
     nnoremap <leader>c :VimShellPop <cr>
     nnoremap <leader>cc :VimShell <cr>
-    nnoremap <leader>cn :VimShellInteractive node<cr>
-    nnoremap <leader>cl :VimShellInteractive lua<cr>
-    nnoremap <leader>cr :VimShellInteractive irb<cr>
-    nnoremap <leader>cp :VimShellInteractive python<cr>
+    nnoremap <leader>ce :VimShellInteractive erl<cr>
 
     " GoldenView
     nmap <silent> <C-L>  <Plug>GoldenViewSplit
@@ -587,6 +597,8 @@ endif
     " Jump back to last edited buffer
     nnoremap <C-b> :e#<CR>
     inoremap <C-b> <esc>:e#<CR>
+
+    nnoremap <silent> <C-e> :<C-u>call ToggleErrors()<CR>
 "}}}
 
 " Plugins {{{
@@ -622,7 +634,8 @@ endif
 
   " Navigation
   if count(s:settings.plugin_groups, 'navigation') "{{{
-    Plug 'mileszs/ack.vim'
+    "Plug 'mileszs/ack.vim'
+    Plug 'wincent/ferret'
     Plug 'scrooloose/nerdtree'
     Plug 'majutsushi/tagbar'
     Plug 'haya14busa/incsearch.vim'
@@ -631,6 +644,7 @@ endif
     Plug 'FelikZ/ctrlp-py-matcher'
     Plug 'ctrlpvim/ctrlp.vim'
     Plug 'vim-scripts/a.vim'
+    Plug 'vim-scripts/QuickFixCurrentNumber'
   endif "}}}
 
   " Autocomplete
@@ -668,8 +682,10 @@ endif
 
   " Erlang
   if count(s:settings.plugin_groups, 'erlang') "{{{
-    Plug 'vim-erlang/vim-erlang-runtime'
-    Plug 'vim-erlang/vim-erlang-omnicomplete'
+    Plug 'vim-erlang/vim-erlang-runtime',      { 'for': 'erlang'}
+    Plug 'vim-erlang/vim-erlang-omnicomplete', { 'for': 'erlang'}
+    Plug 'ten0s/syntaxerl',                    { 'for': 'erlang'}
+    Plug 'fishcakez/vim-rebar'
     Plug 'calebsmith/vim-lambdify'
   endif "}}}
 
@@ -684,7 +700,7 @@ endif
   " Misc
   if count(s:settings.plugin_groups, 'misc') "{{{
     if !s:is_nvim
-        Plug 'Shougo/vimshell.vim',  { 'on': ['VimShell', 'VimShellPop', 'VimShellInteractive'] }
+        Plug 'Shougo/vimshell.vim',  { 'on': ['VimShellExecute','VimShell', 'VimShellPop', 'VimShellInteractive'] }
         Plug 'lyokha/vim-xkbswitch'
         Plug 'tomtom/shymenu_vim'
     endif
@@ -697,6 +713,8 @@ endif
         Plug 'kkoenig/wimproved.vim'
     endif
     Plug 'chrisbra/csv.vim'
+    Plug 'vim-scripts/ingo-library'
+    Plug 'MarcWeber/vim-addon-qf-layout'
   endif "}}}
 
   " Color schemes {{{
@@ -751,6 +769,10 @@ endif
 
         "Jump to last cursor position when opening a file
         autocmd BufReadPost * call s:SetCursorPosition()
+
+        autocmd FileType erlang map <buffer> <S-F10> :VimShellExecute --split='split \| resize 10' rebar compile<cr>
+        autocmd FileType erlang map <buffer> <S-F11> :VimShellExecute --split='split \| resize 10' rebar eunit skip_deps=true<cr>
+
     augroup END
 "}}}
 
