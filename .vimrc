@@ -4,7 +4,7 @@ source $VIMRUNTIME/mswin.vim
 
 " Global variables {{{
 set nocompatible
-
+set termguicolors
 let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 
 let mapleader = "\<Space>"
@@ -20,10 +20,14 @@ let g:sql_type_default = 'plsql'
 let s:settings = {}
 "let s:settings.colorscheme = 'hybrid_reverse'
 let s:settings.colorscheme = 'gruvbox'
+"let s:settings.colorscheme = 'jellybeans'
+
 "let s:settings.airline = 'hybridalt'
 let s:settings.airline = 'gruvbox'
+"let s:settings.airline = 'jellybeans'
+
 let s:settings.default_indent = 4
-let s:settings.max_column = 120
+let s:settings.max_column = 80
 let s:settings.enable_cursorcolumn = 0
 
 let s:settings.plugin_groups_exclude = []
@@ -202,15 +206,15 @@ endfor
   set shortmess+=I                                    "don't show the intro message starting Vim
 
   set cursorline
-  "autocmd WinLeave * setlocal nocursorline
-  "autocmd WinEnter * setlocal cursorline
-  "let &colorcolumn=s:settings.max_column
-  "if s:settings.enable_cursorcolumn
-  "  set cursorcolumn
-  "  autocmd WinLeave * setlocal nocursorcolumn
-  "  autocmd WinEnter * setlocal cursorcolumn
-  "endif
-  "let &textwidth=s:settings.max_column                 "maximum width of text that is being inserted
+  autocmd WinLeave * setlocal nocursorline
+  autocmd WinEnter * setlocal cursorline
+  if s:settings.enable_cursorcolumn
+    set cursorcolumn
+    let &colorcolumn=s:settings.max_column
+    autocmd WinLeave * setlocal nocursorcolumn
+    autocmd WinEnter * setlocal cursorcolumn
+  endif
+  let &textwidth=s:settings.max_column                 "maximum width of text that is being inserted
 
   if has('conceal')
     set conceallevel=1
@@ -233,11 +237,11 @@ endfor
   endif
 
   if has('gui_gtk')
-      set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ Plus\ Nerd\ File\ Types\ Mono\ Plus\ Pomicons\ 12
+      set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ 12
   endif
 
   if s:is_nvim
-      set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ Plus\ Nerd\ File\ Types\ Mono\ Plus\ Pomicons\ 12
+      set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ 12
       set t_Co=256
   endif
 "}}}
@@ -477,6 +481,57 @@ endif
     " Vim-erlang {{{
     " let g:erlang_folding = 1
     " }}}
+
+    " jellybeans theme {{{ 
+       let g:jellybeans_background_color="152a35"
+       if s:settings.colorscheme == 'jellybeans'
+           highlight! ColorColumn guibg=#203951
+           highlight! CursorLine guibg=#203951
+       endif
+    " }}}
+
+    " gruvbox theme {{{
+       let g:gruvbox_contrast_dark = 'soft'
+       let g:gruvbox_improved_warnings = 1
+    " }}}
+
+    " FZF {{{
+       let g:fzf_nvim_statusline = 0 " disable statusline overwriting
+
+        nnoremap <silent> <leader><space> :Files<CR>
+        nnoremap <silent> <leader>a :Buffers<CR>
+        nnoremap <silent> <leader>A :Windows<CR>
+        nnoremap <silent> <leader>; :BLines<CR>
+        nnoremap <silent> <leader>. :Lines<CR>
+        nnoremap <silent> <leader>o :BTags<CR>
+        nnoremap <silent> <leader>O :Tags<CR>
+        nnoremap <silent> <leader>? :History<CR>
+        nnoremap <silent> <leader>/ :execute 'Ag ' . input('Ag/')<CR>
+        nnoremap <silent> K :call SearchWordWithAg()<CR>
+        vnoremap <silent> K :call SearchVisualSelectionWithAg()<CR>
+        nnoremap <silent> <leader>gl :Commits<CR>
+        nnoremap <silent> <leader>ga :BCommits<CR>
+        nnoremap <silent> <leader>ft :Filetypes<CR>
+
+        imap <C-x><C-f> <plug>(fzf-complete-file-ag)
+        imap <C-x><C-l> <plug>(fzf-complete-line)
+
+        function! SearchWordWithAg()
+          execute 'Ag' expand('<cword>')
+        endfunction
+
+        function! SearchVisualSelectionWithAg() range
+          let old_reg = getreg('"')
+          let old_regtype = getregtype('"')
+          let old_clipboard = &clipboard
+          set clipboard&
+          normal! ""gvy
+          let selection = getreg('"')
+          call setreg('"', old_reg, old_regtype)
+          let &clipboard = old_clipboard
+          execute 'Ag' selection
+        endfunction
+    " }}}
 "}}}
 
 " Mappings {{{
@@ -626,7 +681,8 @@ endif
     if !s:is_nvim
         Plug $VIM . '/plugins/vimproc'
     endif
-    Plug 'bling/vim-airline'
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
     Plug 'tpope/vim-dispatch'
     Plug 'tpope/vim-obsession'
     Plug 'dhruvasagar/vim-prosession'
@@ -636,6 +692,7 @@ endif
   if count(s:settings.plugin_groups, 'navigation') "{{{
     "Plug 'mileszs/ack.vim'
     Plug 'wincent/ferret'
+    Plug 'rking/ag.vim'
     Plug 'scrooloose/nerdtree'
     Plug 'majutsushi/tagbar'
     Plug 'haya14busa/incsearch.vim'
@@ -645,6 +702,10 @@ endif
     Plug 'ctrlpvim/ctrlp.vim'
     Plug 'vim-scripts/a.vim'
     Plug 'vim-scripts/QuickFixCurrentNumber'
+    if s:is_nvim
+       Plug 'junegunn/fzf', { 'dir': '~/.fzf' }
+       Plug 'junegunn/fzf.vim'
+    endif
   endif "}}}
 
   " Autocomplete
@@ -718,14 +779,15 @@ endif
   endif "}}}
 
   " Color schemes {{{
+    Plug 'nanotech/jellybeans.vim'
     Plug 'w0ng/vim-hybrid'
     Plug 'vim-scripts/wombat256.vim'
-    Plug 'Wombat'
+    "Plug 'Wombat'
     Plug 'ShawnHuang/vim-airline-wombat256'
     Plug 'yasuoza/vim-airline-super-hybrid-theme'
     Plug 'daviesjamie/airline-hybrid-alt'
     Plug 'kristijanhusak/vim-hybrid-material'
-    Plug 'vim-erlang/vim-compot'
+    "Plug 'vim-erlang/vim-compot'
     Plug 'morhetz/gruvbox'
   "}}}
 
@@ -787,6 +849,5 @@ endif
 
   set background=dark
   exec 'colorscheme '.s:settings.colorscheme
-
 "}}}
 
