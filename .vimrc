@@ -686,6 +686,7 @@ endif
     Plug 'tpope/vim-dispatch'
     Plug 'tpope/vim-obsession'
     Plug 'dhruvasagar/vim-prosession'
+    Plug 'tpope/vim-sleuth'
   endif "}}}
 
   " Navigation
