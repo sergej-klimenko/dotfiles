@@ -11,6 +11,7 @@ let mapleader = "\<Space>"
 let s:is_windows = has('win32') || has('win64')
 let s:is_cygwin = has('win32unix')
 let s:is_nvim = has('nvim')
+let s:is_macvim = has('gui_macvim')
 let s:cache_dir = '~/.vim/.cache'
 
 let s:settings = {}
@@ -138,6 +139,10 @@ let s:settings.enable_cursorcolumn = 0
   if s:is_nvim
       set gfn=Meslo\ LG\ S\ DZ\ for\ Powerline\ Plus\ Nerd\ File\ Types\ Mono\ Plus\ Pomicons\ 12
       set t_Co=256
+  endif
+  
+  if s:is_macvim
+     set gfn=Meslo\ LG\ M\ DZ\ Regular\ for\ Powerline:h12
   endif
 
   " Отображение кириллицы {{{
@@ -532,9 +537,10 @@ Plug 'scrooloose/syntastic'
 
   nnoremap <silent> <C-e> :<C-u>call ToggleErrors()<CR>
 " }}}
+" Plug 'vim-erlang/vim-erlang-compiler',     { 'for': 'erlang'}
 Plug 'vim-erlang/vim-erlang-runtime',      { 'for': 'erlang'}
 Plug 'vim-erlang/vim-erlang-omnicomplete', { 'for': 'erlang'}
-Plug 'ten0s/syntaxerl',                    { 'for': 'erlang'}
+Plug 'ten0s/syntaxerl',                  { 'for': 'erlang'}
 Plug 'fishcakez/vim-rebar'
 Plug 'calebsmith/vim-lambdify'
 if !s:is_nvim
@@ -641,8 +647,11 @@ Plug 'airblade/vim-gitgutter'
 " }}}
 " Utility {{{
 " ====================================================================
-if !s:is_nvim
+if s:is_windows && !s:is_nvim
 Plug $VIM . '/plugins/vimproc'
+endif  
+if !s:is_windows && !s:is_nvim
+Plug 'Shougo/vimproc.vim', {'do' : 'make'}
 endif
 Plug 'tpope/vim-dispatch'
 Plug 'dbakker/vim-projectroot'
