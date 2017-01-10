@@ -16,7 +16,7 @@ let s:cache_dir = '~/.vim/.cache'
 let s:settings = {}
 let s:settings.colorscheme = 'gruvbox'
 let s:settings.airline = 'gruvbox'
-let s:settings.default_indent = 4
+let s:settings.default_indent = 2
 let s:settings.max_column = 120
 let s:settings.enable_cursorcolumn = 0
 " }}}
@@ -567,6 +567,19 @@ Plug 'vim-scripts/dbext.vim'
   let g:sql_type_default = 'plsql'
 " }}}
 Plug 'chrisbra/csv.vim'
+Plug 'pangloss/vim-javascript', {'for': 'javascript'}
+" {{{
+  autocmd FileType javascript setlocal foldmethod=syntax
+" }}}
+Plug 'maksimr/vim-jsbeautify'
+" {{{
+  autocmd FileType javascript vnoremap <buffer>  <c-f> :call RangeJsBeautify()<cr>
+  autocmd FileType json vnoremap <buffer> <c-f> :call RangeJsonBeautify()<cr>
+  autocmd FileType jsx vnoremap <buffer> <c-f> :call RangeJsxBeautify()<cr>
+  autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
+  autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
+" }}}
+
 " }}}
 " Git {{{
 " ====================================================================
