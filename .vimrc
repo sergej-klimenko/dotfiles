@@ -15,8 +15,8 @@ let s:is_macvim = has('gui_macvim')
 let s:cache_dir = '~/.vim/.cache'
 
 let s:settings = {}
-let s:settings.colorscheme = 'deus'
-let s:settings.airline = 'deus'
+let s:settings.colorscheme = 'onedark'
+let s:settings.airline = 'onedark'
 let s:settings.default_indent = 2
 let s:settings.max_column = 120
 let s:settings.enable_cursorcolumn = 0
@@ -129,7 +129,7 @@ let s:settings.enable_cursorcolumn = 0
 
   if s:is_windows
     set gfn=Meslo_LG_L_DZ_for_Powerline_PNF:h9:cRUSSIAN
-    set transparency=2
+    "set transparency=2
   endif
 
   if has('gui_gtk')
@@ -180,6 +180,7 @@ let s:settings.enable_cursorcolumn = 0
 " ====================================================================
 Plug 'morhetz/gruvbox'
 Plug 'ajmwagar/vim-dues'
+Plug 'joshdick/onedark.vim'
 Plug 'vim-airline/vim-airline'
 " {{{
       let g:airline_theme = s:settings.airline
@@ -433,11 +434,12 @@ Plug 'ctrlpvim/ctrlp.vim'                                    " Fuzzy file, buffe
   nmap \ [ctrlp]
   nnoremap [ctrlp] <nop>
   nnoremap [ctrlp]f :CtrlP<cr>
-  nnoremap [ctrlp]t :CtrlPBufTag<cr>
+  nnoremap [ctrlp]t :CtrlPTagbar<cr>
   nnoremap [ctrlp]T :CtrlPTag<cr>
   nnoremap [ctrlp]l :CtrlPLine<cr>
   nnoremap [ctrlp]b :CtrlPBuffer<cr>
 " }}}
+Plug 'gasparch/ctrlp-tagbar.vim'
 Plug 'FelikZ/ctrlp-py-matcher'                               " Fast vim CtrlP matcher based on python
 Plug 'jasoncodes/ctrlp-modified.vim'                         " Easily open locally modified files in your git-versioned projects
 " {{{
@@ -521,6 +523,7 @@ Plug 'tpope/vim-surround'                                    " quoting/parenthes
   let g:easy_align_ignore_comment = 0 " align comments
   "vnoremap <silent> <Enter> :EasyAlign<cr>
 " }}}
+Plug 'godlygeek/tabular'
 Plug 'tomtom/tcomment_vim'                                   " An extensible & universal comment vim-plugin that also handles embedded filetypes
 Plug 'Raimondi/delimitMate'
 " {{{
