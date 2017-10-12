@@ -15,8 +15,8 @@ let s:is_macvim = has('gui_macvim')
 let s:cache_dir = '~/.vim/.cache'
 
 let s:settings = {}
-let s:settings.colorscheme = 'gruvbox'
-let s:settings.airline = 'gruvbox'
+let s:settings.colorscheme = 'deus'
+let s:settings.airline = 'deus'
 let s:settings.default_indent = 2
 let s:settings.max_column = 120
 let s:settings.enable_cursorcolumn = 0
@@ -179,6 +179,7 @@ let s:settings.enable_cursorcolumn = 0
 " Appearance {{{
 " ====================================================================
 Plug 'morhetz/gruvbox'
+Plug 'ajmwagar/vim-dues'
 Plug 'vim-airline/vim-airline'
 " {{{
       let g:airline_theme = s:settings.airline
@@ -234,12 +235,12 @@ Plug 'vim-airline/vim-airline'
           \ ]
       \ }
  " }}}
-Plug 'Yggdroot/indentLine'                                  " A vim plugin to display the indention levels with thin vertical lines
+" Plug 'Yggdroot/indentLine'                                  " A vim plugin to display the indention levels with thin vertical lines
 " {{{
   let g:indentLine_char='┆'
   let g:indentLine_bufNameExclude = ['_.*', 'NERD_tree*']
 " }}}
-Plug 'tpope/vim-sleuth'                                     " Heuristically set buffer options
+" Plug 'tpope/vim-sleuth'                                     " Heuristically set buffer options
 Plug 'junegunn/limelight.vim'                               " Hyperfocus-writing in Vim
 " {{{
   let g:limelight_default_coefficient = 0.7
@@ -292,6 +293,7 @@ Plug 'Shougo/neocomplete.vim'
     let g:neocomplete#force_omni_input_patterns = {}
   endif
   let g:neocomplete#force_omni_input_patterns.erlang='\<[[:digit:][:alnum:]_-]\+:[[:digit:][:alnum:]_-]*'
+  let g:neocomplete#force_omni_input_patterns.elixir = '[^.[:digit:] *\t]\.'
 " }}}
 endif
 Plug 'ervandew/supertab'                                    " Perform all your vim insert mode completions with Tab
@@ -347,11 +349,6 @@ Plug 'mileszs/ack.vim'                                       " Run your favorite
   let g:ackprg = 'ag --vimgrep'
   let g:ack_use_dispatch = 1
 
-  cnoreabbrev ag Ack
-  cnoreabbrev aG Ack
-  cnoreabbrev Ag Ack
-  cnoreabbrev AG Ack
-
   function! SearchWordWithAg()
     execute 'Ack' expand('<cword>')
   endfunction
@@ -369,36 +366,57 @@ Plug 'mileszs/ack.vim'                                       " Run your favorite
   endfunction
 
   nnoremap <silent> <leader>/ :execute 'Ack ' . input('Ack/')<CR>
-  nnoremap <silent> K :call SearchWordWithAg()<CR>
-  vnoremap <silent> K :call SearchVisualSelectionWithAg()<CR>
+  nnoremap <silent> F :call SearchWordWithAg()<CR>
+  vnoremap <silent> F :call SearchVisualSelectionWithAg()<CR>
 " }}}
-if s:is_nvim
+if !s:is_windows
+if s:is_macvim
+Plug '/usr/local/opt/fzf'
+endif
 Plug 'junegunn/fzf', { 'dir': '~/.fzf' }                     " A command-line fuzzy finder written in Go
 Plug 'junegunn/fzf.vim'
 " {{{
   let g:fzf_nvim_statusline = 0 " disable statusline overwriting
 
-  nnoremap <silent> <leader><space> :Files<CR>
-  nnoremap <silent> <leader>a :Buffers<CR>
-  nnoremap <silent> <leader>A :Windows<CR>
-  nnoremap <silent> <leader>; :BLines<CR>
-  nnoremap <silent> <leader>. :Lines<CR>
-  nnoremap <silent> <leader>o :BTags<CR>
-  nnoremap <silent> <leader>O :Tags<CR>
-  nnoremap <silent> <leader>? :History<CR>
-  nnoremap <silent> <leader>gl :Commits<CR>
-  nnoremap <silent> <leader>ga :BCommits<CR>
-  nnoremap <silent> <leader>ft :Filetypes<CR>
+  if s:is_macvim
+      let g:fzf_launcher = "~/fzf_macvim.sh %s"
+  endif
+
+  " Command for git grep
+  " - fzf#vim#grep(command, with_column, [options], [fullscreen])
+  command! -bang -nargs=* GGrep
+    \ call fzf#vim#grep('git grep --line-number '.shellescape(<q-args>), 0, <bang>0)
+
+  "   :Ag  - Start fzf with hidden preview window that can be enabled with "?" key
+  "   :Ag! - Start fzf in fullscreen and display the preview window above
+  command! -bang -nargs=* Ag
+    \ call fzf#vim#ag(<q-args>,
+    \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+    \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+    \                 <bang>0)
+
+  nmap \ [fzf]
+  nnoremap [fzf] <nop>
+  nnoremap [fzf]f :Files<CR>
+  nnoremap [fzf]b :Buffers<CR>
+  nnoremap [fzf]l :BLines<CR>
+  nnoremap [fzf]L :Lines<CR>
+  nnoremap [fzf]t :BTags<CR>
+  nnoremap [fzf]T :Tags<CR>
+  nnoremap [fzf]G :Commits<CR>
+  nnoremap [fzf]g :BCommits<CR>
+  nnoremap [fzf]a :Ag<CR>
 
   imap <C-x><C-f> <plug>(fzf-complete-file-ag)
   imap <C-x><C-l> <plug>(fzf-complete-line)
 " }}}
 endif
-if !s:is_nvim
+if s:is_windows
 Plug 'ctrlpvim/ctrlp.vim'                                    " Fuzzy file, buffer, mru, tag, etc finder
 " {{{
   let g:ctrlp_match_func = { 'match': 'pymatcher#PyMatch' }
   let g:ctrlp_use_caching = 0
+  let g:ctrlp_extensions = ['sw_profiles']
 
   let g:ctrlp_custom_ignore = {
             \ 'dir':  '\v[\/]\.(git|hg|svn)$',
@@ -421,6 +439,11 @@ Plug 'ctrlpvim/ctrlp.vim'                                    " Fuzzy file, buffe
   nnoremap [ctrlp]b :CtrlPBuffer<cr>
 " }}}
 Plug 'FelikZ/ctrlp-py-matcher'                               " Fast vim CtrlP matcher based on python
+Plug 'jasoncodes/ctrlp-modified.vim'                         " Easily open locally modified files in your git-versioned projects
+" {{{
+     nnoremap [ctrlp]m :CtrlPModified
+     nnoremap [ctrlp]M :CtrlPBranch
+" }}}
 endif
 Plug 'dyng/ctrlsf.vim'                                       " An ack.vim alternative mimics Ctrl-Shift-F on Sublime Text 2
 " {{{
@@ -493,10 +516,10 @@ Plug 'haya14busa/incsearch.vim'                              " Improved incremen
 " Text Manipulation {{{
 " ====================================================================
 Plug 'tpope/vim-surround'                                    " quoting/parenthesizing made simple
-Plug 'junegunn/vim-easy-align'                               " A simple, easy-to-use Vim alignment plugin
+"Plug 'junegunn/vim-easy-align'                               " A simple, easy-to-use Vim alignment plugin
 " {{{
   let g:easy_align_ignore_comment = 0 " align comments
-  vnoremap <silent> <Enter> :EasyAlign<cr>
+  "vnoremap <silent> <Enter> :EasyAlign<cr>
 " }}}
 Plug 'tomtom/tcomment_vim'                                   " An extensible & universal comment vim-plugin that also handles embedded filetypes
 Plug 'Raimondi/delimitMate'
@@ -509,10 +532,20 @@ Plug 'vim-scripts/DeleteTrailingWhitespace'
   let g:DeleteTrailingWhitespace = 1
   let g:DeleteTrailingWhitespace_Action = 'delete'
 " }}}
+Plug 'NLKNguyen/copy-cut-paste' 
+" {{{
+  let g:copy_cut_paste_no_mappings = 1
+
+  nmap QC <Plug>CCP_CopyLine
+  vmap QC <Plug>CCP_CopyText
+  nmap QX <Plug>CCP_CutLine
+  vmap QX <Plug>CCP_CutText
+  nmap QV <Plug>CCP_PasteText
+" }}}
 " }}}
 " Languages {{{
 " ====================================================================
-Plug 'scrooloose/syntastic'
+Plug 'vim-syntastic/syntastic'
 " {{{
   let g:syntastic_error_symbol = '✗'
   let g:syntastic_style_error_symbol = '✠'
@@ -537,10 +570,13 @@ Plug 'scrooloose/syntastic'
 
   nnoremap <silent> <C-e> :<C-u>call ToggleErrors()<CR>
 " }}}
-" Plug 'vim-erlang/vim-erlang-compiler',     { 'for': 'erlang'}
-Plug 'vim-erlang/vim-erlang-runtime',      { 'for': 'erlang'}
 Plug 'vim-erlang/vim-erlang-omnicomplete', { 'for': 'erlang'}
-Plug 'ten0s/syntaxerl',                  { 'for': 'erlang'}
+Plug 'vim-erlang/vim-erlang-runtime',      { 'for': 'erlang'}
+" Plug 'vim-erlang/vim-erlang-compiler',   { 'for': 'erlang'}
+" {{{
+"  let g:erlang_quickfix_support = 1
+" }}}
+Plug 'ten0s/syntaxerl',                    { 'for': 'erlang'}
 Plug 'fishcakez/vim-rebar'
 Plug 'calebsmith/vim-lambdify'
 if !s:is_nvim
@@ -564,13 +600,20 @@ Plug 'talek/vorax4'
   nnoremap <silent> <F12> :VORAXConnectionsToggle<CR>
 " }}}
 endif
-Plug 'vim-scripts/dbext.vim'
+" Plug 'vim-scripts/dbext.vim'
 " {{{
   let g:dbext_default_buffer_lines = 5
   let g:dbext_default_use_sep_result_buffer = 0
   let g:dbext_default_use_result_buffer = 1
   let g:dbext_default_window_use_horiz = 1
   let g:sql_type_default = 'plsql'
+" }}}
+Plug 'cosminadrianpopescu/vim-sql-workbench'
+" {{{
+  let g:sw_exe = '/Users/sergej/sqlworkbench/sqlwbconsole.sh'
+  let g:sw_config_dir = '/Users/sergej/.sqlworkbench'
+  let g:sw_dbexplorer_panel = '/Users/sergej/.sqlworkbench/dbexplorer.vim'
+  let g:sw_log_to_file = 1
 " }}}
 Plug 'chrisbra/csv.vim'
 Plug 'pangloss/vim-javascript', {'for': 'javascript'}
@@ -585,8 +628,11 @@ Plug 'maksimr/vim-jsbeautify'
   autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
   autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
 " }}}
-
+Plug 'uarun/vim-protobuf'
+Plug 'fatih/vim-go'
 " }}}
+Plug 'elixir-lang/vim-elixir'
+Plug 'slashmili/alchemist.vim'
 " Git {{{
 " ====================================================================
 Plug 'tpope/vim-fugitive'
@@ -644,6 +690,10 @@ Plug 'airblade/vim-gitgutter'
   nnoremap cog :GitGutterToggle<CR>
   nnoremap <Leader>gt :GitGutterAll<CR>
 " }}}
+Plug 'gregsexton/gitv'
+" {{{
+  cabbrev gitv Gitv
+" }}}
 " }}}
 " Utility {{{
 " ====================================================================
@@ -676,8 +726,8 @@ Plug 'dbakker/vim-projectroot'
 Plug 'tpope/vim-obsession'
 Plug 'lyokha/vim-xkbswitch'
 " {{{
-  let g:XkbSwitchEnabled = 1
-  let g:XkbSwitchLib = '/usr/lib/libxkbswitch.so'
+  let g:XkbSwitchEnabled = 0
+  let g:XkbSwitchLib = '/usr/local/lib/libxkbswitch.dylib'
   let g:XkbSwitchNLayout = 'us'
   let g:XkbSwitchILayout = 'us'
 
@@ -693,7 +743,7 @@ Plug 'lyokha/vim-xkbswitch'
 " }}}
 Plug 'ludovicchabant/vim-gutentags'
 " {{{
-  let g:gutentags_exclude = [
+  let g:gutentags_ctags_exclude = [
       \ '*.min.js',
       \ '*html*',
       \ 'jquery*.js',
@@ -760,10 +810,36 @@ Plug 'tyru/open-browser.vim'
 " }}}
 Plug 'vim-scripts/ingo-library'
 Plug 'MarcWeber/vim-addon-qf-layout'
+if s:is_windows 
 Plug 'KabbAmine/zeavim.vim'
 " {{{
   let g:zv_zeal_executable = 'zeal.exe --query '
 " }}}
+endif
+if !s:is_windows && !s:is_macvim
+Plug 'sunaku/vim-dasht'
+" {{{
+  " search related docsets
+  nnoremap <Leader>k :Dasht<Space>
+  " search ALL the docsets
+  nnoremap <Leader><Leader>k :Dasht!<Space>
+  " search related docsets
+  nnoremap <silent> <Leader>K :call Dasht([expand('<cword>'), expand('<cWORD>')])<Return>
+  " search ALL the docsets
+  nnoremap <silent> <Leader><Leader>K :call Dasht([expand('<cword>'), expand('<cWORD>')], '!')<Return>
+
+  let g:dasht_filetype_docsets = {}
+  " When in Elixir, also search Erlang:
+  let g:dasht_filetype_docsets['elixir'] = ['erlang']
+" }}}
+endif
+if s:is_macvim
+Plug 'rizzatti/dash.vim'
+" {{{
+  nmap <silent> <Leader>k <Plug>DashSearch
+  let g:dash_activate = 1
+""}}}
+endif
 " }}}
 " Finish loading {{{
   call plug#end()
@@ -897,8 +973,12 @@ augroup fileTypeSpecific
   au BufEnter *.typ.sql :IndentLinesReset
 
   " Erlang
-  autocmd FileType erlang map <buffer> <S-F10> :VimShellExecute --split='split \| resize 10' rebar compile<cr>
-  autocmd FileType erlang map <buffer> <S-F11> :VimShellExecute --split='split \| resize 10' rebar eunit skip_deps=true<cr>
+  autocmd FileType erlang map <buffer> <S-F10> :VimShellExecute --split='split \| resize 10' rebar3 compile<cr>
+  autocmd FileType erlang map <buffer> <S-F11> :VimShellExecute --split='split \| resize 10' rebar3 eunit skip_deps=true<cr>
+  autocmd FileType erlang setlocal expandtab shiftwidth=4 softtabstop=4
+
+  "autocmd QuickFixCmdPost [^l]* nested cwindow
+  "autocmd QuickFixCmdPost    l* nested lwindow
 
   " Java
   autocmd FileType java set omnifunc=javacomplete#Complete
