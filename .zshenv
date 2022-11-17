@@ -12,4 +12,10 @@ export PATH=/usr/local/bin:$HOME/.local/bin:$PATH
 export GOPATH=$HOME/projects/golang
 export PATH=$PATH:$GOPATH/bin
 
+if [ "$(arch)" = "arm64" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+else
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 [[ -f ~/.zshenv-secret ]] && source ~/.zshenv-secret

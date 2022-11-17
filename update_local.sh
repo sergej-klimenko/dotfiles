@@ -11,6 +11,11 @@ if [[ $(sysctl -n machdep.cpu.brand_string) =~ "Apple M1" ]]; then
     is_m1=1
 fi
 
+if [ "$(arch)" = "arm64" ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+else
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
 
 # Make sure you have the latest
 git pull --rebase
