@@ -16,11 +16,11 @@ fi
 git pull --rebase
 
 # Install dependencies from Brewfile
-if [ "$is_m1" = "0" || "$(arch)" = "arm64" ]; then
+if [ "$is_m1" = "0" ] || [ "$(arch)" = "arm64" ]; then
     brew bundle install -f Brewfile-native
 fi
 
-if [ "$is_m1" = "1" && "$(arch)" = "i386" ]; then
+if [ "$is_m1" = "1" ] && [ "$(arch)" = "i386" ]; then
     brew bundle install -f Brewfile-i386
 fi
 
