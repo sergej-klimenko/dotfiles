@@ -54,7 +54,7 @@ fi
 
 # Copy and source ~/.zshrc
 cp .zshrc ~/.zshrc
-cp -R .zsh/* ~/.zsh
+mkdir -p ~./zsh && cp -R .zsh/* ~/.zsh
 cp .zshenv ~/.zshenv
 
 source ~/.zshrc
