@@ -22,11 +22,11 @@ git pull --rebase
 
 # Install dependencies from Brewfile
 if [ "$is_m1" = "0" ] || [ "$(arch)" = "arm64" ]; then
-    brew bundle install -f Brewfile-native
+    brew bundle install --file=Brewfile-native
 fi
 
 if [ "$is_m1" = "1" ] && [ "$(arch)" = "i386" ]; then
-    brew bundle install -f Brewfile-i386
+    brew bundle install --file=Brewfile-i386
 fi
 
 
@@ -54,7 +54,7 @@ fi
 
 # Copy and source ~/.zshrc
 cp .zshrc ~/.zshrc
-mkdir -p ~./zsh && cp -R .zsh/* ~/.zsh
+mkdir -p ~/.zsh && cp -R .zsh/* ~/.zsh
 cp .zshenv ~/.zshenv
 
 source ~/.zshrc

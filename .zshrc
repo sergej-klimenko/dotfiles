@@ -3,7 +3,7 @@
 [[ -f ~/.zsh/starship.zsh ]] && source ~/.zsh/starship.zsh
 
 # Load Starship
-if [ ! -d "/opt/homebrew" ]; then
+if [ -d "/opt/homebrew" ]; then
 	eval "$(/opt/homebrew/bin/starship init zsh)"
 else 
 	eval "$(starship init zsh)"
