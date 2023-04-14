@@ -1,0 +1,55 @@
+{
+  "workbench.colorTheme": "Gruvbox Dark Soft",
+  "editor.fontFamily": "FiraCode-Retina",
+  "editor.fontLigatures": true,
+  "editor.fontWeight": "500", 
+  "editor.fontSize": 16,
+  
+  "go.lintTool":"golangci-lint",
+  "go.lintFlags": ["--fast"],
+  "go.useLanguageServer": true,
+  "go.alternateTools": {
+      "go-langserver": "gopls"
+  },
+  "go.languageServerExperimentalFeatures": {
+     "diagnostics": true,
+  },   
+  "go.buildOnSave": "off",
+  "go.vetOnSave": "off",
+  "go.testFlags": ["-count=1", "-v"],
+  "[go]": {
+      "editor.snippetSuggestions": "none",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+      },
+  },     
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "editor.largeFileOptimizations": false,
+  "editor.renderControlCharacters": true,
+  "[json]": {
+      "editor.defaultFormatter": "HookyQR.beautify"
+},
+"files.associations": {
+    "*.pks.sql": "plsql",
+    "*.pkb.sql": "plsql"
+},
+"go.toolsManagement.autoUpdate": true,
+"diffEditor.ignoreTrimWhitespace": false,
+"files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+},
+
+"redhat.telemetry.enabled": true,
+"editor.suggestSelection": "first",
+"vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+"java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m -javaagent:\"/Users/sergej/.vscode/extensions/gabrielbb.vscode-lombok-1.0.1/server/lombok.jar\"",
+"diffEditor.maxComputationTime": 0,
+"[python]": {
+    "editor.formatOnType": true
+}
+}

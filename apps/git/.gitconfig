@@ -1,0 +1,39 @@
+[url "https://github.com/"]
+	insteadOf = git://github.com/
+
+[url "https://git.privatbank.ua/"]
+	insteadOf = git@git.privatbank.ua:
+
+[core]
+	editor = sublime -n -w
+	excludesfile = /Users/sergej/.gitignore_global
+
+[user]
+	email = sergej.klimenko@gmail.com
+	name = Sergey Klimenko
+
+[alias]
+  co = checkout
+  ci = commit
+  st = status
+  br = branch
+  hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  type = cat-file -t
+  dump = cat-file -p
+
+[http]
+	sslVerify = false
+
+[credential]
+	helper = store
+
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+
+[commit]
+	template = /Users/sergej/.gitmessage

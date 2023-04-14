@@ -1,0 +1,5 @@
+tap "instantclienttap/instantclient"
+brew "instantclienttap/instantclient/instantclient-basic"
+brew "instantclienttap/instantclient/instantclient-sdk"
+brew "instantclienttap/instantclient/instantclient-sqlplus"
+brew "instantclienttap/instantclient/instantclient-tools"
