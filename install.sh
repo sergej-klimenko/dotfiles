@@ -21,6 +21,7 @@ APPS=(
   ssh
   python
   golang
+  sublime
   defaults
 )
 
