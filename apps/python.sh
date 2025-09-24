@@ -1,4 +1,5 @@
 #!/bin/zsh
+set -e
 
 ###############################################################################
 # Python
@@ -20,6 +21,8 @@ python_latest=$(pyenv install -l 2>/dev/null | awk '$1 ~ /^[0-9.]*$/ {latest=$1}
 pyenv install --skip-existing $python_latest
 pyenv rehash
 pyenv global $python_latest
+
+eval "$(pyenv init -)"
 
 # pip *should* be installed at this point
 hash pip 2>/dev/null || echo "Please install pip before continuing"

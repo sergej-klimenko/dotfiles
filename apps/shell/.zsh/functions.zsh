@@ -1,11 +1,5 @@
 # vim: ft=sh
 
-#-------- docker exec into container {{{
-docker-attach() {
-  docker exec -it $1 bash
-}
-#}}}
-
 groot() {
   if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
     git rev-parse --show-toplevel
@@ -18,15 +12,6 @@ groot() {
 
 cdgroot() {
   cd $(groot)
-}
-
-dexec() {
-  if (( $# == 0 ))
-    then
-        echo "usage: dexec <container name | container id>"
-        return
-  fi
-  docker exec -it $1 sh
 }
 
 # fkill - kill processes - list only the ones you can kill.
@@ -88,5 +73,25 @@ fzf-git-checkout() {
 
 # grep for processes
 function pg { pgrep -fa "$1" | grep -E --color "$1"; }
+
+
+# create a new directory and enter it
+function mkd() {
+  mkdir -p "$@" && cd "$_";
+}
+
+# determine size of a file or total size of a directory
+function fs() {
+  if du -b /dev/null > /dev/null 2>&1; then
+    local arg=-sbh;
+  else
+    local arg=-sh;
+  fi
+  if [[ -n "$@" ]]; then
+    du $arg -- "$@";
+  else
+    du $arg .[^.]* ./*;
+  fi;
+}
 
 
